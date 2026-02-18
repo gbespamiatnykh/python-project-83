@@ -1,8 +1,17 @@
 import os
 from datetime import date
 
+import requests
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import (
+    Flask,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 
 from page_analyzer.url_repository import UrlRepository
 from page_analyzer.url_utils import normalize_url, validate
@@ -41,6 +50,8 @@ def add_url():
 @app.route("/urls/<int:id>")
 def show_url(id):
     url = repo.find_by_id(id)
+    if not url:
+        abort(404)
     checks = repo.get_checks(id)
     return render_template("show.html", url=url, checks=checks)
 
@@ -53,7 +64,18 @@ def list_urls():
 
 @app.route("/urls/<int:id>/checks", methods=["POST"])
 def add_check(id):
+    url = repo.find_by_id(id)
+    try:
+        response = requests.get(url.get("name"))
+    except requests.RequestException:
+        flash("Произошла ошибка при проверке", "danger")
+        return redirect(url_for("show_url", id=id))
     check_date = date.today()
-    repo.add_check(id, check_date)
+    repo.add_check(id, response.status_code, check_date)
     flash("Страница успешно проверена", "success")
     return redirect(url_for("show_url", id=id))
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return render_template("404.html")

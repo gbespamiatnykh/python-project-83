@@ -43,20 +43,23 @@ class UrlRepository:
     def get_all(self):
         return self._execute(
             """
-            SELECT u.id AS id, u.name AS name, MAX(uc.created_at) AS last_check
-            FROM urls u LEFT JOIN url_checks uc ON u.id = uc.url_id
-            GROUP BY u.id, u.name ORDER BY u.id DESC;
+            SELECT u.id, u.name, uc.status_code, uc.created_at AS last_check
+            FROM urls u LEFT JOIN
+            (SELECT DISTINCT ON (url_id) url_id, status_code, created_at
+            FROM url_checks ORDER BY url_id, created_at DESC) uc
+            ON u.id = uc.url_id ORDER BY u.id DESC
             """,
             fetch="all",
         )
 
-    def add_check(self, url_id, date):
+    def add_check(self, url_id, status_code, date):
         return self._execute(
             """
-            INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s)
+            INSERT INTO url_checks (url_id, status_code, created_at)
+            VALUES (%s, %s, %s)
             RETURNING id
             """,
-            (url_id, date),
+            (url_id, status_code, date),
             fetch="one",
             do_commit=True,
         )
