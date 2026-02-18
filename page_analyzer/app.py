@@ -34,7 +34,7 @@ def add_url():
     errors = validate(url_data)
     if errors:
         flash("Некорректный URL", "danger")
-        return redirect(url_for("index"))
+        return render_template("index.html"), 422
 
     normalized_url = normalize_url(url_data)
     url = repo.find_by_name(normalized_url)
