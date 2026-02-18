@@ -2,5 +2,5 @@
   {% block heading %}Страница не найдена{% endblock %}
   {% block content %}
       <p>Здесь нет того, что вы ищете</p>
-      <p><a href="/">Вернуться на главную</a></p>
+      <p><a href="{{ url_for('index') }}">Вернуться на главную</a></p>
 {% endblock %}
