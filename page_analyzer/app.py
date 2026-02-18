@@ -65,7 +65,8 @@ def list_urls():
 def add_check(id):
     url = repo.find_by_id(id)
     try:
-        response = requests.get(url.get("name"))
+        response = requests.get(url.get("name"), timeout=5)
+        response.raise_for_status()
     except requests.RequestException:
         flash("Произошла ошибка при проверке", "danger")
         return redirect(url_for("show_url", id=id))
