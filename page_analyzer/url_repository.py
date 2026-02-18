@@ -52,14 +52,22 @@ class UrlRepository:
             fetch="all",
         )
 
-    def add_check(self, url_id, status_code, date):
+    def add_check(self, url_id, status_code, html_data, creation_date):
         return self._execute(
             """
-            INSERT INTO url_checks (url_id, status_code, created_at)
-            VALUES (%s, %s, %s)
+            INSERT INTO url_checks
+            (url_id, status_code, h1, title, description, created_at)
+            VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (url_id, status_code, date),
+            (
+                url_id,
+                status_code,
+                html_data.get("h1"),
+                html_data.get("title"),
+                html_data.get("description"),
+                creation_date,
+            ),
             fetch="one",
             do_commit=True,
         )
