@@ -14,7 +14,7 @@ from flask import (
 )
 
 from page_analyzer.url_repository import UrlRepository
-from page_analyzer.url_utils import normalize_url, validate
+from page_analyzer.url_utils import normalize_url, parse_html, validate
 
 load_dotenv()
 app = Flask(__name__)
@@ -41,8 +41,7 @@ def add_url():
     if url:
         flash("Страница уже существует", "info")
         return redirect(url_for("show_url", id=url.get("id")))
-    creation_date = date.today()
-    id = repo.add(normalized_url, creation_date)
+    id = repo.add(normalized_url, date.today())
     flash("Страница успешно добавлена", "success")
     return redirect(url_for("show_url", id=id))
 
@@ -70,8 +69,8 @@ def add_check(id):
     except requests.RequestException:
         flash("Произошла ошибка при проверке", "danger")
         return redirect(url_for("show_url", id=id))
-    check_date = date.today()
-    repo.add_check(id, response.status_code, check_date)
+    html_data = parse_html(response.text)
+    repo.add_check(id, response.status_code, html_data, date.today())
     flash("Страница успешно проверена", "success")
     return redirect(url_for("show_url", id=id))
 
