@@ -36,10 +36,9 @@ cd python-project-83
 ```bash
 make install
 ```
-### Environment variables:
-Create a '.env' file in the project root and set:
-SECRET_KEY=your-secret-key
-DATABASE_URL=postgres://user:password@localhost:5432/dbname
+### Create a '.env' file in the project root and set:
+- SECRET_KEY=your-secret-key
+- DATABASE_URL=postgres://user:password@localhost:5432/dbname
 ### Run the application:
 ```bash
 make start
